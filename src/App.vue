@@ -3,30 +3,25 @@
     <h3>Cálculo de IMC</h3>
     <p>
       Digite seu peso (em kg):
-      <input type='number' id='peso' >
+      <input autofocus type='text' placeholder='Ex: 85' id='peso' v-model="peso">
     </p>
     <p>
-      Digite sua altura (em cm):
-      <input autofocus type='number' id='altura' >
+      Digite sua altura (em metros):
+      <input type='text' placeholder='Ex: 1.71' id='altura' v-model="altura">
     </p>
 
     <p>
-      <input type="button" value="Calcular" v-on:click="calcularImc()">
+      <input type="button" value="Calcular" @click="calcularImc()">
+      <input type="button" value="Novo Cálculo" @click="limpar()">
     </p>
-    <p>
-      IMC:
-      {{ resultado }}
-    </p>
+    <div v-if="resultado_imc" class="resultadoImc">
+      <p>
+        IMC: {{ resultado_imc }}
+        <br />
+        Classificação: {{ resultado_classificacao }}
+      </p>
+    </div>
     <br /><br />
-
-    <p>
-      Abaixo de 18,5 = abaixo do peso ideal <br>
-      Entre 18,5 e 24,9 = peso ideal <br>
-      Entre 25,0 e 29,9 = sobrepeso <br>
-      Entre 30,0 e 34,9 = obesidade grau I <br>
-      Entre 35,0 e 39,9 = obesidade grau II <br>
-      Entre 40 e acima = obesidade grau III <br>
-    </p>
 
   </div>
 </template>
@@ -36,26 +31,72 @@ export default {
   name: 'app',
   methods: {
     calcularImc : function() {
-				// event.preventDefault();
+      if(this.peso == null){
+        alert("Digite um peso");
+        peso.focus();
+      }else if(this.altura == null){
+        alert("Digite uma altura");
+        altura.focus();
+      }else if(this.altura == '0'){
+        alert("Altura não pode ser zero");
+        this.altura = null,
+        altura.focus();
+      }else{
+        const altura = this.altura.replace(",",".");
+        const peso = this.peso.replace(",",".");
+        let calculo = (peso / (altura * altura));
 
-        const peso = this.$el.querySelector('#peso');
-        const altura = this.$el.querySelector('#altura');
-        let total = this.$el.querySelector('#total');
+        this.resultado_imc = calculo.toFixed(1);
+        this.calcularResultado();
+      }
+      
+    },
+    calcularResultado : function(){
+      if (this.resultado_imc < 18.5) {
+        this.resultado_classificacao = "abaixo do peso ideal";
+      } else if (this.resultado_imc >= 18.5 && this.resultado_imc <= 24.9) {
+        this.resultado_classificacao = "Peso ideal";
+      } else if (this.resultado_imc >= 25 && this.resultado_imc < 30) {
+        this.resultado_classificacao = "Sobrepeso";
+      } else if (this.resultado_imc >= 30 && this.resultado_imc < 35) {
+        this.resultado_classificacao = "Obesidade grau I";
+      }else if (this.resultado_imc >= 35 && this.resultado_imc < 40) {
+        this.resultado_classificacao = "Obesidade grau II";
+      } else {
+        this.resultado_classificacao = "Obesidade grau III";
+      }
 
-				let calculo = (parseInt(peso.value) / (parseInt(altura.value) * parseInt(altura.value))) * 10000;
-        console.log(calculo);
-
-				this.resultado += calculo.toFixed(1);
-			}
+    },
+    limpar: function() {
+      this.altura = null,
+      this.peso = null,
+      this.resultado_imc = "",
+      this.resultado_classificacao = ""
+    }
+  },
+  data() {
+    return{
+      altura: null,
+      peso: null,
+      resultado_imc: "",
+      resultado_classificacao: ""
+    }
 
   },
-  data () {
-    return {
-      resultado: 'Seu IMC é '
-    }
-  }
 }
 </script>
 
 <style>
+  body{
+    margin: 10px;
+  }
+  .resultadoImc{
+    background-color: #94EBC5;
+    padding: 3px;
+    font-weight: bold;
+    float: center;
+  }
+  h3{
+    text-align: center;
+  }
 </style>
